@@ -66,9 +66,7 @@ CXXFLAGS += -DASSERT
 
 # CFLAGS_WARN holds compiler options to suppress/enable warnings.
 # Compiler warnings are treated as errors
-ifneq ($(COMPILER_WARNINGS_FATAL),false)
-  CFLAGS_WARN = $(WARNINGS_ARE_ERRORS)
-endif
+CFLAGS_WARN = $(WARNINGS_ARE_ERRORS)
 CFLAGS += $(CFLAGS_WARN)
 
 OBJECTNAMES = \
@@ -114,7 +112,7 @@ endif
 
 $(EXEC) : $(OBJECTS)
 	@echo Making adlc
-	$(QUIETLY) $(HOST.LINK_NOPROF.CXX) -o $(EXEC) $(OBJECTS)
+	$(QUIETLY) $(filter-out $(ARCHFLAG),$(HOST.LINK_NOPROF.CXX)) $(ADLC_LD_FLAGS) -o $(EXEC) $(OBJECTS)
 
 # Random dependencies:
 $(OBJECTS): opcodes.hpp classes.hpp adlc.hpp adlcVMDeps.hpp adlparse.hpp archDesc.hpp arena.hpp dict2.hpp filebuff.hpp forms.hpp formsopt.hpp formssel.hpp
@@ -138,8 +136,10 @@ $(GENERATEDFILES): refresh_adfiles
 # Note that product files are updated via "mv", which is atomic.
 TEMPDIR := $(OUTDIR)/mktmp$(shell echo $$$$)
 
-# Debuggable by default
-CFLAGS += -g
+ifneq ($(DEBUG_BINARIES), true)
+  # Debuggable by default (unless already done by DEBUG_BINARIES)
+  CFLAGS += -g
+endif
 
 # Pass -D flags into ADLC.
 ADLCFLAGS += $(SYSDEFS)
@@ -216,14 +216,14 @@ PROCESS_AD_FILES = awk '{ \
 $(OUTDIR)/%.o: %.cpp
 	@echo Compiling $<
 	$(QUIETLY) $(REMOVE_TARGET)
-	$(QUIETLY) $(HOST.COMPILE.CXX) -o $@ $< $(COMPILE_DONE)
+	$(QUIETLY) $(filter-out $(ARCHFLAG),$(HOST.COMPILE.CXX)) -o $@ $< $(COMPILE_DONE)
 
 # Some object files are given a prefix, to disambiguate
 # them from objects of the same name built for the VM.
 $(OUTDIR)/adlc-%.o: %.cpp
 	@echo Compiling $<
 	$(QUIETLY) $(REMOVE_TARGET)
-	$(QUIETLY) $(HOST.COMPILE.CXX) -o $@ $< $(COMPILE_DONE)
+	$(QUIETLY) $(filter-out $(ARCHFLAG),$(HOST.COMPILE.CXX)) -o $@ $< $(COMPILE_DONE)
 
 # #########################################################################
 

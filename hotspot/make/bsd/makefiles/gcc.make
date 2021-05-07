@@ -232,6 +232,7 @@ endif
 ARCHFLAG = $(ARCHFLAG/$(BUILDARCH))
 ARCHFLAG/i486    = -m32 -march=i586
 ARCHFLAG/amd64   = -m64 $(STACK_ALIGNMENT_OPT)
+ARCHFLAG/aarch64 =
 ARCHFLAG/ia64    =
 ARCHFLAG/sparc   = -m32 -mcpu=v9
 ARCHFLAG/sparcv9 = -m64 -mcpu=v9
@@ -363,7 +364,7 @@ endif
 DEPFLAGS = -MMD -MP -MF $(DEP_DIR)/$(@:%=%.d)
 ifeq ($(USE_CLANG),)
   ifneq ($(CC_VER_MAJOR), 2)
-    DEPFLAGS += -fpch-deps
+    #DEPFLAGS += -fpch-deps
   endif
 endif
 
@@ -477,8 +478,9 @@ else
     STABS_CFLAGS/arm   = -g
     STABS_CFLAGS/ppc   = -g
     STABS_CFLAGS/amd64 = -g
+    STABS_CFLAGS/aarch64 = -g
     ifeq ($(STABS_CFLAGS/$(BUILDARCH)),)
-      STABS_CFLAGS += -gstabs
+      #STABS_CFLAGS += -gstabs
     else
       STABS_CFLAGS += $(STABS_CFLAGS/$(BUILDARCH))
     endif
